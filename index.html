@@ -10,265 +10,335 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        .nav-link {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-link.active {
+            color: #3b82f6; /* blue-500 */
+            border-bottom: 2px solid #3b82f6;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 p-4 sm:p-6 lg:p-8">
 
     <div class="max-w-screen-2xl mx-auto">
         <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Futures Market Dashboard</h1>
-            <p class="text-sm text-gray-500 mt-1" id="last-updated">Last Updated: --</p>
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Futures Market Dashboard</h1>
+                    <p class="text-sm text-gray-500 mt-1" id="last-updated">Last Updated: --</p>
+                </div>
+                <nav class="flex space-x-6 text-lg font-semibold text-gray-600">
+                    <a id="nav-dashboard" class="nav-link active" onclick="showPage('dashboard')">Dashboard</a>
+                    <a id="nav-journal" class="nav-link" onclick="showPage('journal')">Journal</a>
+                </nav>
+            </div>
         </header>
 
-        <main class="space-y-8">
-            <!-- Top Section: News & Geopolitics -->
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <!-- Headline News -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">Headline News</h2>
-                    <ul id="headline-news" class="space-y-3 list-disc list-inside text-gray-700">
-                        <!-- AI-generated headlines will be populated by JavaScript -->
-                    </ul>
-                </div>
-                <!-- Geopolitics -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">Recent Geopolitics</h2>
-                    <p id="geopolitics-analysis" class="text-gray-700 leading-relaxed">
-                        <!-- AI-generated analysis will be populated by JavaScript -->
-                    </p>
-                </div>
-            </div>
-
-            <!-- Second Section: What to Watch -->
-            <div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">What to watch for today</h2>
-                    <div id="what-to-watch-container" class="space-y-4">
-                         <!-- AI-generated content will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Third Section: Instruments and Events -->
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <!-- Instruments Table -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div id="instruments-table-container">
-                         <table class="w-full text-left">
-                            <thead>
-                                <tr class="border-b bg-gray-50">
-                                    <th class="p-3 text-sm font-semibold tracking-wide">Instrument</th>
-                                    <th class="p-3 text-sm font-semibold tracking-wide">Daily % Change</th>
-                                    <th class="p-3 text-sm font-semibold tracking-wide">ADVC % (21d)</th>
-                                    <th class="p-3 text-sm font-semibold tracking-wide">Monthly Trend</th>
-                                    <th class="p-3 text-sm font-semibold tracking-wide">Monthly % Change</th>
-                                    <th class="p-3 text-sm font-semibold tracking-wide">YTD % Change</th>
-                                </tr>
-                            </thead>
-                            <tbody id="instruments-table-body">
-                                <!-- This table body will be populated by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <!-- Events & Context Column -->
-                <div class="space-y-8">
-                    <!-- Events Calendar -->
+        <!-- Dashboard Page -->
+        <div id="page-dashboard">
+            <main class="space-y-8">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                     <div class="bg-white rounded-lg shadow-md p-6">
-                        <h2 class="text-xl font-semibold mb-4">Today's Upcoming News Events</h2>
+                        <h2 class="text-xl font-semibold mb-4">Headline News</h2>
+                        <ul id="headline-news" class="space-y-3 list-disc list-inside text-gray-700"></ul>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold mb-4">Recent Geopolitics</h2>
+                        <p id="geopolitics-analysis" class="text-gray-700 leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold mb-4">What to watch for today</h2>
+                        <div id="what-to-watch-container" class="space-y-4"></div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <!-- Left Column: Instruments Table -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
                         <table class="w-full text-left">
                             <thead>
                                 <tr class="border-b bg-gray-50">
-                                    <th class="p-3 text-sm font-semibold tracking-wide">Event</th>
-                                    <th class="p-3 text-sm font-semibold tracking-wide">Actual</th>
-                                    <th class="p-3 text-sm font-semibold tracking-wide">Previous</th>
-                                    <th class="p-3 text-sm font-semibold tracking-wide">Consensus</th>
-                                    <th class="p-3 text-sm font-semibold tracking-wide">I-M-B</th>
+                                    <th class="p-3 text-sm font-semibold tracking-wide">Instrument</th>
+                                    <th class="p-3 text-sm font-semibold tracking-wide">Current Price</th>
+                                    <th class="p-3 text-sm font-semibold tracking-wide">Daily % Change</th>
+                                    <th class="p-3 text-sm font-semibold tracking-wide">ATRP (14d)</th>
+                                    <th class="p-3 text-sm font-semibold tracking-wide">Monthly Trend</th>
                                 </tr>
                             </thead>
-                            <tbody id="events-calendar">
-                                <!-- Events will be populated by JavaScript -->
+                            <tbody id="instruments-table-body">
+                                <tr><td colspan="5"><div class="loader"></div></td></tr>
                             </tbody>
                         </table>
                     </div>
-                     <!-- Context Analysis of Data -->
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h2 class="text-xl font-semibold mb-4">Context Analysis of Data Releases</h2>
-                        <p id="data-release-analysis" class="text-gray-700 leading-relaxed">
-                            <!-- AI-generated analysis will be populated by JavaScript -->
-                        </p>
+                    
+                    <!-- Right Column: Read-Only Analysis Display -->
+                    <div class="bg-white rounded-lg shadow-md p-6 text-gray-800">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Market Analysis & Trade Idea</h2>
+                            <button onclick="openModal()" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition text-sm">Log/Update Analysis</button>
+                        </div>
+                        <div id="analysis-display-container" class="space-y-4">
+                           <!-- Latest analysis will be rendered here -->
+                        </div>
                     </div>
                 </div>
+
+                <!-- Bottom Row: Events Calendar -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Today's Upcoming News Events</h2>
+                    <div class="h-[500px]">
+                       <iframe src="https://widget.myfxbook.com/widget/calendar.html?lang=en&impacts=2,3&countries=Belgium,Canada,China,France,Germany,Japan,United%20Kingdom,United%20States" style="border: 0; width:100%; height:100%;"></iframe>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Journal Page -->
+        <div id="page-journal" class="hidden">
+            <h2 class="text-2xl font-bold mb-6">Trade Journal</h2>
+            <div id="journal-entries" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                <!-- Journal entries will be populated here -->
             </div>
-        </main>
+        </div>
         
-        <footer class="text-center text-sm text-gray-500 mt-12">
-            <p>Note: This is a demo using mock data.</p>
-        </footer>
+        <footer class="text-center text-sm text-gray-500 mt-12"><p>Dashboard built with love and Python. Note: Mock data used for some sections.</p></footer>
     </div>
 
+    <!-- Editing Modal -->
+    <div id="analysis-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 overflow-y-auto h-full w-full hidden z-50">
+      <div class="relative top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3">
+            <p class="text-2xl font-bold">Log/Update Market Analysis</p>
+            <button onclick="closeModal()" class="cursor-pointer z-50 text-gray-400 hover:text-gray-900 text-3xl">&times;</button>
+        </div>
+        <div class="space-y-4">
+             <div>
+                <label for="analysis-title" class="block text-sm font-medium text-gray-700">Analysis Title (e.g., Gas Market Analysis)</label>
+                <input type="text" id="analysis-title" class="mt-1 p-2 w-full border rounded-md">
+            </div>
+            <div>
+                <label for="analysis-image" class="block text-sm font-medium text-gray-700">Upload Market Photo</label>
+                <input type="file" id="analysis-image" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                <img id="analysis-image-preview" src="" class="mt-4 rounded-lg hidden max-h-60 mx-auto"/>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div class="space-y-4">
+                    <div><h3 class="font-bold text-lg mb-2">Market Tone and Drivers</h3><textarea id="analysis-drivers" rows="4" class="mt-1 p-2 w-full border rounded-md"></textarea></div>
+                    <div><h3 class="font-bold text-lg mb-2">Current Market Observations</h3><textarea id="analysis-observations" rows="4" class="mt-1 p-2 w-full border rounded-md"></textarea></div>
+                </div>
+                <div class="space-y-4">
+                    <div><h3 class="font-bold text-lg mb-2">Forward Market Observations</h3><textarea id="analysis-forward" rows="4" class="mt-1 p-2 w-full border rounded-md"></textarea></div>
+                     <div><h3 class="font-bold text-lg mb-2">Outlook Summary</h3><textarea id="analysis-summary" rows="4" class="mt-1 p-2 w-full border rounded-md"></textarea></div>
+                </div>
+            </div>
+            <button onclick="saveAnalysisToJournal()" class="w-full mt-6 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition">Save to Journal & Update Dashboard</button>
+        </div>
+      </div>
+    </div>
+
+
     <script>
-        // --- DATA SIMULATION ---
-        const instrumentGroups = {
-            "Equity Indices": ["ES=F", "NQ=F", "YM=F"],
-            "US Bonds": ["ZN=F", "ZB=F", "ZT=F"],
-            "Energy": ["CL=F", "NG=F"],
-            "Metals": ["GC=F", "SI=F"]
-        };
+        // --- PAGE NAVIGATION & MODAL ---
+        const analysisModal = document.getElementById('analysis-modal');
+        function openModal() { analysisModal.classList.remove('hidden'); }
+        function closeModal() { analysisModal.classList.add('hidden'); }
 
-        const eventData = [
-            { event: 'US CPI (MoM)', actual: '0.4%', previous: '0.3%', consensus: '0.3%' },
-            { event: 'Fed Interest Rate Decision', actual: '5.50%', previous: '5.50%', consensus: '5.50%' },
-            { event: 'US Non-Farm Payrolls', actual: '175K', previous: '315K', consensus: '240K' },
-            { event: 'Crude Oil Inventories', actual: '-1.362M', previous: '1.825M', consensus: '-1.430M' },
-        ];
-        
-        const whatToWatchData = {
-            context: "Market focus today is squarely on inflation and Fed commentary. Any deviation from expectations in the CPI data will likely cause significant volatility in equity and bond markets.",
-            points: [
-                "US CPI (MoM): A hot print could push yields higher and pressure equities.",
-                "FOMC Member Speeches: Listen for any change in tone regarding future rate hikes.",
-                "EIA Crude Oil Inventories: A larger-than-expected draw could support oil prices.",
-                "Geopolitical Updates: Any news regarding direct US involvement in the Iran conflict could lead to a spike in energy prices."
-            ]
-        };
-
-        const headlineNewsData = [
-            "Fed officials signal a 'higher for longer' stance on interest rates amid sticky inflation reports.",
-            "Global supply chain pressures ease slightly, but shipping costs from Asia remain elevated.",
-            "OPEC+ holds production levels steady, causing a modest rally in crude oil prices.",
-            "Tech sector faces headwinds as new European regulations on data privacy come into effect."
-        ];
-
-        const geopoliticsData = "Tensions in the South China Sea are a key watchpoint, potentially impacting global shipping lanes. In Eastern Europe, energy security remains a primary concern for the EU, with ongoing efforts to diversify supply away from Russia. Trade negotiations between the US and China are stagnant, with tariffs on key goods likely to remain in place through the end of the year.";
-
-        const dataReleaseAnalysisData = "This week's data presents a mixed economic picture. The stronger-than-expected CPI print suggests inflation is more persistent than the Fed would like, reducing the probability of near-term rate cuts. However, the miss on the JOLTs job openings number could be an early indicator of a cooling labor market. This combination points towards a potential stagflationary environment, where slowing growth is coupled with high inflation, complicating the path forward for monetary policy.";
-
-        function getMockInstrumentData(ticker) {
-            const plusOrMinus = () => Math.random() < 0.5 ? -1 : 1;
-            const rand = (min, max) => Math.random() * (max - min) + min;
-            const dailyChange = plusOrMinus() * rand(0.01, 1.5);
-            const monthlyChange = plusOrMinus() * rand(0.5, 5);
-            const ytdChange = plusOrMinus() * rand(2, 20);
-            return {
-                instrument: ticker,
-                daily_pct_change: dailyChange,
-                advc_pct: rand(0.8, 2.5),
-                monthly_trend: Math.random() < 0.5 ? 'Uptrend' : 'Downtrend',
-                monthly_pct_change: monthlyChange,
-                ytd_pct_change: ytdChange,
-            };
-        }
-
-        function parseFinancialNumber(str) {
-            if (typeof str !== 'string') return null;
-            const cleaned = str.replace(/%|,/g, '').trim();
-            const value = parseFloat(cleaned);
-            if (isNaN(value)) return null;
-            if (cleaned.toUpperCase().endsWith('K')) return value * 1000;
-            if (cleaned.toUpperCase().endsWith('M')) return value * 1_000_000;
-            if (cleaned.toUpperCase().endsWith('B')) return value * 1_000_000_000;
-            return value;
-        }
-
-        // --- UI RENDERING ---
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderInstrumentsTable();
-            renderEventsCalendar();
-            renderWhatToWatch();
-            renderHeadlineNews();
-            renderAiAnalyses();
-            document.getElementById('last-updated').textContent = `Last Updated: ${new Date().toLocaleString()}`;
-        });
-
-        function renderInstrumentsTable() {
-            const tbody = document.getElementById('instruments-table-body');
-            tbody.innerHTML = ''; 
-
-            for (const [groupName, tickers] of Object.entries(instrumentGroups)) {
-                const groupRow = document.createElement('tr');
-                groupRow.className = 'bg-gray-200 font-semibold';
-                groupRow.innerHTML = `<td colspan="6" class="p-2 text-sm text-gray-700">${groupName}</td>`;
-                tbody.appendChild(groupRow);
-
-                tickers.forEach(ticker => {
-                    const data = getMockInstrumentData(ticker);
-                    const row = document.createElement('tr');
-                    row.className = 'border-b hover:bg-gray-50';
-                    const trendColor = data.monthly_trend === 'Uptrend' ? 'text-green-600' : 'text-red-600';
-                    const dailyChangeColor = data.daily_pct_change >= 0 ? 'text-green-600' : 'text-red-600';
-                    const monthlyChangeColor = data.monthly_pct_change >= 0 ? 'text-green-600' : 'text-red-600';
-                    const ytdChangeColor = data.ytd_pct_change >= 0 ? 'text-green-600' : 'text-red-600';
-                    row.innerHTML = `
-                        <td class="p-3 font-semibold">${data.instrument}</td>
-                        <td class="p-3 ${dailyChangeColor}">${data.daily_pct_change.toFixed(2)}%</td>
-                        <td class="p-3">${data.advc_pct.toFixed(2)}%</td>
-                        <td class="p-3 font-medium ${trendColor}">${data.monthly_trend}</td>
-                        <td class="p-3 ${monthlyChangeColor}">${data.monthly_pct_change.toFixed(2)}%</td>
-                        <td class="p-3 ${ytdChangeColor}">${data.ytd_pct_change.toFixed(2)}%</td>
-                    `;
-                    tbody.appendChild(row);
-                });
+        function showPage(pageName) {
+            document.getElementById('page-dashboard').classList.toggle('hidden', pageName !== 'dashboard');
+            document.getElementById('page-journal').classList.toggle('hidden', pageName !== 'journal');
+            document.getElementById('nav-dashboard').classList.toggle('active', pageName === 'dashboard');
+            document.getElementById('nav-journal').classList.toggle('active', pageName === 'journal');
+            if (pageName === 'journal') {
+                renderJournal();
+            } else {
+                renderLatestAnalysis();
             }
         }
         
-        function renderEventsCalendar() {
-            const tbody = document.getElementById('events-calendar');
-            tbody.innerHTML = ''; 
+        // --- JOURNAL & ANALYSIS LOGIC ---
+        const analysisImageInput = document.getElementById('analysis-image');
+        const analysisImagePreview = document.getElementById('analysis-image-preview');
+        
+        analysisImageInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    analysisImagePreview.src = e.target.result;
+                    analysisImagePreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
-            eventData.forEach(event => {
-                const row = document.createElement('tr');
-                row.className = 'border-b hover:bg-gray-50';
-                const actualNum = parseFinancialNumber(event.actual);
-                const consensusNum = parseFinancialNumber(event.consensus);
-                let imbResult = 'Inline';
-                let imbColor = 'text-gray-500';
-                if (actualNum !== null && consensusNum !== null) {
-                    if (actualNum > consensusNum) {
-                        imbResult = 'Beat';
-                        imbColor = 'text-green-600';
-                    } else if (actualNum < consensusNum) {
-                        imbResult = 'Miss';
-                        imbColor = 'text-red-600';
-                    }
-                }
-                row.innerHTML = `
-                    <td class="p-3 font-semibold">${event.event}</td>
-                    <td class="p-3">${event.actual}</td>
-                    <td class="p-3">${event.previous}</td>
-                    <td class="p-3">${event.consensus}</td>
-                    <td class="p-3 font-semibold ${imbColor}">${imbResult}</td>
+        function saveAnalysisToJournal() {
+            const analysis = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                title: document.getElementById('analysis-title').value || 'Market Analysis',
+                image: analysisImagePreview.src,
+                drivers: document.getElementById('analysis-drivers').value,
+                observations: document.getElementById('analysis-observations').value,
+                forward: document.getElementById('analysis-forward').value,
+                summary: document.getElementById('analysis-summary').value
+            };
+
+            if (!analysis.image) {
+                alert('Please upload an image for the analysis.');
+                return;
+            }
+
+            let journal = JSON.parse(localStorage.getItem('tradeJournal')) || [];
+            journal.unshift(analysis);
+            localStorage.setItem('tradeJournal', JSON.stringify(journal));
+
+            alert('Analysis saved to journal!');
+            closeModal();
+            renderLatestAnalysis(); // Update the main dashboard display
+        }
+        
+        function renderLatestAnalysis() {
+            const journal = JSON.parse(localStorage.getItem('tradeJournal')) || [];
+            const container = document.getElementById('analysis-display-container');
+            
+            if (journal.length > 0) {
+                const latestEntry = journal[0];
+                 container.innerHTML = `
+                    <h3 class="text-xl font-bold">${latestEntry.title} - <span class="font-medium text-gray-600">${latestEntry.date}</span></h3>
+                    <img src="${latestEntry.image}" class="rounded-lg w-full h-auto object-cover max-h-72 my-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div><h4 class="font-bold text-lg">Market Tone and Drivers</h4><p class="text-gray-600 whitespace-pre-wrap">${latestEntry.drivers}</p></div>
+                            <div><h4 class="font-bold text-lg">Current Market Observations</h4><p class="text-gray-600 whitespace-pre-wrap">${latestEntry.observations}</p></div>
+                        </div>
+                        <div class="space-y-4">
+                            <div><h4 class="font-bold text-lg">Forward Market Observations</h4><p class="text-gray-600 whitespace-pre-wrap">${latestEntry.forward}</p></div>
+                            <div><h4 class="font-bold text-lg">Outlook Summary</h4><p class="text-gray-600 whitespace-pre-wrap">${latestEntry.summary}</p></div>
+                        </div>
+                    </div>
                 `;
-                tbody.appendChild(row);
+            } else {
+                 container.innerHTML = `<p class="text-gray-500">No analysis logged yet. Click "Log/Update Analysis" to get started.</p>`;
+            }
+        }
+
+        function renderJournal() {
+            const journal = JSON.parse(localStorage.getItem('tradeJournal')) || [];
+            const container = document.getElementById('journal-entries');
+            container.innerHTML = '';
+            if (journal.length === 0) {
+                container.innerHTML = `<p class="text-gray-500">Your journal is empty. Save an analysis from the dashboard to get started.</p>`;
+            } else {
+                journal.forEach(entry => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-lg shadow-md p-6 space-y-4';
+                    card.innerHTML = `
+                        <h2 class="text-xl font-bold">${entry.title}</h2>
+                        <p class="text-sm font-semibold text-gray-500">${entry.date}</p>
+                        <img src="${entry.image}" class="rounded-lg w-full h-auto object-cover">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><h3 class="font-bold text-gray-800">Market Tone and Drivers</h3><p class="text-gray-600 whitespace-pre-wrap">${entry.drivers}</p></div>
+                            <div><h3 class="font-bold text-gray-800">Current Market Observations</h3><p class="text-gray-600 whitespace-pre-wrap">${entry.observations}</p></div>
+                            <div><h3 class="font-bold text-gray-800">Forward Market Observations</h3><p class="text-gray-600 whitespace-pre-wrap">${entry.forward}</p></div>
+                            <div><h3 class="font-bold text-gray-800">Outlook Summary</h3><p class="text-gray-600 whitespace-pre-wrap">${entry.summary}</p></div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        }
+
+        // --- API & DATA FETCHING ---
+        async function fetchInstrumentData() {
+            const instrumentsBody = document.getElementById('instruments-table-body');
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/instruments');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                renderInstrumentsTable(data);
+            } catch (error) {
+                console.error("Could not fetch instrument data:", error);
+                instrumentsBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-red-500">Could not connect to the data server. Is the Python script running?</td></tr>`;
+            }
+        }
+
+        // --- UI RENDERING ---
+        function renderInstrumentsTable(data) {
+            const tbody = document.getElementById('instruments-table-body');
+            tbody.innerHTML = ''; 
+            if (!data || data.length === 0) {
+                 tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-gray-500">No data received.</td></tr>`;
+                 return;
+            }
+            data.forEach(item => {
+                if (item.is_header) {
+                    const groupRow = document.createElement('tr');
+                    groupRow.className = 'bg-gray-200 font-semibold';
+                    groupRow.innerHTML = `<td colspan="5" class="p-2 text-sm text-gray-700">${item.group_name}</td>`;
+                    tbody.appendChild(groupRow);
+                } else {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b hover:bg-gray-50';
+                    const trendColor = item.monthly_trend === 'Uptrend' ? 'text-green-600' : 'text-red-600';
+                    const dailyChangeColor = item.daily_pct_change >= 0 ? 'text-green-600' : 'text-red-600';
+                    row.innerHTML = `
+                        <td class="p-3 font-semibold">${item.instrument}</td>
+                        <td class="p-3 font-semibold">${item.current_price.toFixed(2)}</td>
+                        <td class="p-3 ${dailyChangeColor}">${item.daily_pct_change.toFixed(2)}%</td>
+                        <td class="p-3">${item.atrp.toFixed(2)}%</td>
+                        <td class="p-3 font-medium ${trendColor}">${item.monthly_trend}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
             });
         }
         
-        function renderWhatToWatch() {
-            const container = document.getElementById('what-to-watch-container');
-            container.innerHTML = `
-                <p class="text-gray-700 leading-relaxed">${whatToWatchData.context}</p>
-                <ul class="space-y-3 list-disc list-inside text-gray-700">
-                    ${whatToWatchData.points.map(point => `<li>${point}</li>`).join('')}
-                </ul>
-            `;
+        // --- MOCK DATA & TEMPLATE FILLING ---
+        const whatToWatchData = { context: "Market focus today is squarely on inflation and Fed commentary.", points: ["US CPI (MoM)", "FOMC Member Speeches", "EIA Crude Oil Inventories", "Geopolitical Updates"] };
+        const headlineNewsData = ["Fed signals 'higher for longer' rates.", "Global supply chain pressures ease.", "OPEC+ holds production steady.", "New EU tech regulations in effect."];
+        const geopoliticsData = "Tensions in the South China Sea remain a key watchpoint. Trade negotiations between the US and China are stagnant.";
+        
+        function fillAnalysisTemplate() {
+            document.getElementById('analysis-title').value = 'Gas Market Analysis';
+            document.getElementById('analysis-drivers').value = `+ Bullish: Increased Cooling Degree Days\n+ Cameron LNG Restart: Feedgas flows at 14 55 Bcf/d\n- Hub prices remain well below the screen`;
+            document.getElementById('analysis-observations').value = `~ Balance-of-Month (BAL MO remains -40c under screen\n~ Salt Storage Draws underway, including in Texas\n+107 Bcf build expected this week`;
+            document.getElementById('analysis-forward').value = `↑ Front-End Focus: LNG feedgas >5Bcf/d expected for July\n↗ Positioning Bias: Long on front-end`;
+            document.getElementById('analysis-summary').value = `Expect continued volatility and noise; fundamentals support a strong frontend bid.`;
         }
-
-        function renderHeadlineNews() {
-            const ul = document.getElementById('headline-news');
-            ul.innerHTML = '';
-            headlineNewsData.forEach(headline => {
-                const li = document.createElement('li');
-                li.textContent = headline;
-                ul.appendChild(li);
-            });
-        }
-
-        function renderAiAnalyses() {
-            document.getElementById('geopolitics-analysis').textContent = geopoliticsData;
-            document.getElementById('data-release-analysis').textContent = dataReleaseAnalysisData;
-        }
-
+        
+        function renderWhatToWatch() { const container = document.getElementById('what-to-watch-container'); container.innerHTML = `<p class="text-gray-700 leading-relaxed">${whatToWatchData.context}</p><ul class="space-y-3 list-disc list-inside text-gray-700">${whatToWatchData.points.map(point => `<li>${point}</li>`).join('')}</ul>`; }
+        function renderHeadlineNews() { const ul = document.getElementById('headline-news'); ul.innerHTML = ''; headlineNewsData.forEach(headline => { const li = document.createElement('li'); li.textContent = headline; ul.appendChild(li); }); }
+        function renderGeopolitics() { document.getElementById('geopolitics-analysis').textContent = geopoliticsData; }
+        
+        // --- INITIAL LOAD ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchInstrumentData();
+            renderWhatToWatch();
+            renderHeadlineNews();
+            renderGeopolitics();
+            fillAnalysisTemplate(); // Pre-fill the modal with template text
+            renderLatestAnalysis(); // Render the latest analysis on load
+            document.getElementById('last-updated').textContent = `Last Updated: ${new Date().toLocaleString()}`;
+            showPage('dashboard');
+        });
     </script>
 </body>
 </html>
